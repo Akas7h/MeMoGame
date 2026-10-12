@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --text: #1f2937;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #dfe7f3;
+            --shadow: rgba(15, 23, 42, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #eef5ff, var(--bg));
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 24px;
+        }
+
+        .container {
+            width: min(900px, 100%);
+            background: var(--panel);
+            border-radius: 20px;
+            box-shadow: 0 16px 40px var(--shadow);
+            padding: 28px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: clamp(2rem, 3vw, 3rem);
+        }
+
+        .subtitle {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #475569;
+        }
+
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(120px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .score-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+
+        .score-box h2 {
+            margin: 0 0 8px;
+            font-size: 1rem;
+            color: #475569;
+        }
+
+        .score-value {
+            font-size: clamp(1.7rem, 2vw, 2.4rem);
+            font-weight: 700;
+        }
+
+        .choices {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(120px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .choice-btn {
+            border: 2px solid var(--border);
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 18px 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .choice-btn:hover,
+        .choice-btn:focus-visible {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+            outline: none;
+        }
+
+        .choice-btn .emoji {
+            display: block;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .choice-btn.selected {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .result-panel {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .round-label {
+            display: inline-block;
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .result-text {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 2rem);
+            font-weight: 700;
+        }
+
+        .showdown {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 26px;
+        }
+
+        .pick-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .pick-box h3 {
+            margin: 0 0 8px;
+            color: #475569;
+            font-size: 1rem;
+        }
+
+        .pick-value {
+            font-size: clamp(2rem, 4vw, 3rem);
+            display: block;
+            margin-top: 10px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+        }
+
+        .reset-btn {
+            border: none;
+            border-radius: 12px;
+            background: var(--primary);
+            color: white;
+            padding: 14px 26px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .reset-btn:hover,
+        .reset-btn:focus-visible {
+            background: var(--primary-dark);
+            outline: none;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 20px 16px;
+            }
+
+            .scoreboard,
+            .choices,
+            .showdown {
+                grid-template-columns: 1fr;
+            }
+
+            .choice-btn {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header class="header">
+            <h1>Rock Paper Scissors</h1>
+            <p class="subtitle">Pick your move and beat the computer.</p>
+        </header>
+
+        <section class="scoreboard" aria-label="Scoreboard">
+            <div class="score-box">
+                <h2>You</h2>
+                <div id="player-score" class="score-value">0</div>
+            </div>
+            <div class="score-box">
+                <h2>Ties</h2>
+                <div id="tie-score" class="score-value">0</div>
+            </div>
+            <div class="score-box">
+                <h2>Computer</h2>
+                <div id="computer-score" class="score-value">0</div>
+            </div>
+        </section>
+
+        <section class="choices" aria-label="Player choices">
+            <button class="choice-btn" data-choice="rock" aria-label="Rock">
+                <span class="emoji" aria-hidden="true">✊</span>
+                Rock
+            </button>
+            <button class="choice-btn" data-choice="paper" aria-label="Paper">
+                <span class="emoji" aria-hidden="true">✋</span>
+                Paper
+            </button>
+            <button class="choice-btn" data-choice="scissors" aria-label="Scissors">
+                <span class="emoji" aria-hidden="true">✌️</span>
+                Scissors
+            </button>
+        </section>
+
+        <section class="result-panel" aria-live="polite">
+            <div class="round-label">Round Result</div>
+            <p id="result-text" class="result-text">Make your move!</p>
+        </section>
+
+        <section class="showdown" aria-label="Selected moves">
+            <div class="pick-box">
+                <h3>You picked</h3>
+                <span id="player-pick" class="pick-value">—</span>
+            </div>
+            <div class="pick-box">
+                <h3>Computer picked</h3>
+                <span id="computer-pick" class="pick-value">—</span>
+            </div>
+        </section>
+
+        <div class="controls">
+            <button id="reset-btn" class="reset-btn" type="button">Reset Scores</button>
+        </div>
+    </main>
+
+    <script>
+        const choices = {
+            rock: { label: 'Rock', emoji: '✊' },
+            paper: { label: 'Paper', emoji: '✋' },
+            scissors: { label: 'Scissors', emoji: '✌️' }
+        };
+
+        const rules = {
+            rock: 'scissors',
+            paper: 'rock',
+            scissors: 'paper'
+        };
+
+        const score = {
+            player: 0,
+            computer: 0,
+            ties: 0
+        };
+
+        const elements = {
+            playerScore: document.getElementById('player-score'),
+            computerScore: document.getElementById('computer-score'),
+            tieScore: document.getElementById('tie-score'),
+            resultText: document.getElementById('result-text'),
+            playerPick: document.getElementById('player-pick'),
+            computerPick: document.getElementById('computer-pick'),
+            buttons: document.querySelectorAll('.choice-btn'),
+            reset: document.getElementById('reset-btn')
+        };
+
+        function updateScoreboard() {
+            elements.playerScore.textContent = score.player;
+            elements.computerScore.textContent = score.computer;
+            elements.tieScore.textContent = score.ties;
+        }
+
+        function getComputerChoice() {
+            const keys = Object.keys(choices);
+            const randomIndex = Math.floor(Math.random() * keys.length);
+            return keys[randomIndex];
+        }
+
+        function determineWinner(playerChoice, computerChoice) {
+            if (playerChoice === computerChoice) {
+                return 'tie';
+            }
+
+            return rules[playerChoice] === computerChoice ? 'player' : 'computer';
+        }
+
+        function setSelectedChoice(choice) {
+            elements.buttons.forEach((button) => {
+                const isSelected = button.dataset.choice === choice;
+                button.classList.toggle('selected', isSelected);
+            });
+        }
+
+        function playRound(playerChoice) {
+            const computerChoice = getComputerChoice();
+            const winner = determineWinner(playerChoice, computerChoice);
+
+            setSelectedChoice(playerChoice);
+
+            elements.playerPick.textContent = `${choices[playerChoice].emoji} ${choices[playerChoice].label}`;
+            elements.computerPick.textContent = `${choices[computerChoice].emoji} ${choices[computerChoice].label}`;
+
+            if (winner === 'player') {
+                score.player += 1;
+                elements.resultText.textContent = `You win! ${choices[playerChoice].label} beats ${choices[computerChoice].label}.`;
+            } else if (winner === 'computer') {
+                score.computer += 1;
+                elements.resultText.textContent = `Computer wins! ${choices[computerChoice].label} beats ${choices[playerChoice].label}.`;
+            } else {
+                score.ties += 1;
+                elements.resultText.textContent = `It's a tie! Both picked ${choices[playerChoice].label}.`;
+            }
+
+            updateScoreboard();
+        }
+
+        function resetGame() {
+            score.player = 0;
+            score.computer = 0;
+            score.ties = 0;
+            elements.resultText.textContent = 'Make your move!';
+            elements.playerPick.textContent = '—';
+            elements.computerPick.textContent = '—';
+            elements.buttons.forEach((button) => button.classList.remove('selected'));
+            updateScoreboard();
+        }
+
+        elements.buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+                playRound(button.dataset.choice);
+            });
+        });
+
+        elements.reset.addEventListener('click', resetGame);
+
+        updateScoreboard();
+    </script>
+</body>
+</html>
